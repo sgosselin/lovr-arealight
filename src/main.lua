@@ -20,12 +20,13 @@ local gLight = {
 
 function create_room_plane()
     local plane = {}
-    -- floor's mesh
+
     plane.mesh = lovr.graphics.newMesh({
         { 'lovrPosition', 'float', 3 },
         { 'lovrNormal', 'float', 3 },
         { 'lovrTexCoord', 'float', 2}
     }, 6, 'triangles')
+
     plane.mesh:setVertices({
         {-1, 0, -1,     0, 1, 0,    0, 0},
         {-1, 0, 1,      0, 1, 0,    1, 0},
@@ -34,7 +35,7 @@ function create_room_plane()
         {1, 0, -1,      0, 1, 0,    0, 1},
         {-1, 0, -1,     0, 1, 0,    0, 0},
     })
-    -- floor's shader, it uses the rectangular area light.
+
     plane.shader = require('rectlight')()
 
     return plane
@@ -42,13 +43,13 @@ end
 
 function lovr.load()
     gRoomPlane = create_room_plane()
+
     -- select an initial texture for the light color.
     gLight.tex = lovr.graphics.newTexture(ASSET_PATH .. 'tv0.png')
     gLight.mat = lovr.graphics.newMaterial(gLight.tex)
 end
 
--- Draw the world axes.
-function draw_axes()
+function draw_world_axes()
     lovr.graphics.setShader()
     lovr.graphics.setColor(1, 0, 0)
     lovr.graphics.line(0, 0, 0, 1, 0, 0)
@@ -58,7 +59,6 @@ function draw_axes()
     lovr.graphics.line(0, 0, 0, 0, 0, 1)
 end
 
--- Draw the plane corresponding to the rectangular area light.
 function draw_rectlight(light)
     lovr.graphics.setShader()
     lovr.graphics.setColor(1, 1, 1)
@@ -70,7 +70,6 @@ end
 function draw_room(room_plane, light)
     lovr.graphics.setShader(room_plane.shader)
 
-    -- send the area light information.
     room_plane.shader:send('in_lightPlaneColor', light.color)
     room_plane.shader:send('in_lightPlaneCenter', light.center)
     room_plane.shader:send('in_lightPlaneRight', light.vecRight)
@@ -132,7 +131,7 @@ end
 function lovr.draw()
     lovr.graphics.setBackgroundColor(.05, .05, .05)
 
-    draw_axes()
+    draw_world_axes()
     draw_room(gRoomPlane, gLight)
     draw_rectlight(gLight)
 end
