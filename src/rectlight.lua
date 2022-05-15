@@ -13,6 +13,10 @@ local _areaLightStr = [[
 
     // Returns a basic approximation of the rectangular light color by
     // sampling nine points from its color texture.
+    //
+    // TODO: we should do this on the CPU instead; the color does not change during the
+    // rendering of the scene so we can calculate it once instead of for every shaded
+    // pixels.
     vec3 ApproximateLightColor()
     {
         vec4 res = vec4(0,0,0,0);
