@@ -15,7 +15,7 @@ local gLight = {
     -- from its texture.
     color = lovr.math.newVec3(1, 1, 1),
     -- light's radius
-    radius = 2,
+    radius = 1,
 }
 
 function calc_light_color(image)
@@ -116,7 +116,7 @@ function draw_room(room_plane, light)
 
     -- bottom
     lovr.graphics.push()
-    lovr.graphics.scale(2, 0, 2)
+    lovr.graphics.scale(10, 0, 10)
     room_plane.mesh:draw()
     lovr.graphics.pop()
     -- back
@@ -162,6 +162,9 @@ function lovr.keypressed(key, scancode, r)
         gLight.tex = lovr.graphics.newTexture(img)
         gLight.mat = lovr.graphics.newMaterial(gLight.tex)
     end
+
+    if key == 'z' then gLight.radius = gLight.radius + 1 end
+    if key == 'x' then gLight.radius = gLight.radius - 1 end
 end
 
 function lovr.draw()
