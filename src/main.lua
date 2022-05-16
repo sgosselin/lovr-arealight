@@ -2,19 +2,13 @@ ASSET_PATH = './asset/'
 
 -- Definition of a Rectangular Area Light.
 local gLight = {
-    -- plane's center coordinate
     center = lovr.math.newVec3(0, 1, 0),
     origin_center = lovr.math.newVec3(0, 1, 0),
-    -- plane's size
     size = lovr.math.newVec2(1.5, 1.0),
-    -- plane's vectors
     vecRight  = lovr.math.newVec3(1, 0, 0),
     vecUp     = lovr.math.newVec3(0, 1, 0),
     vecNormal = lovr.math.newVec3(0, 0, 1),
-    -- light's color; not used right now since we get the light color
-    -- from its texture.
     color = lovr.math.newVec3(1, 1, 1),
-    -- light's radius
     radius = 1,
 }
 
