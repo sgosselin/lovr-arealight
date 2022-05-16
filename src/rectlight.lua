@@ -1,7 +1,7 @@
 local _areaLightStr = [[
     #define M_PI 3.14159265358979323846
 
-    uniform vec3 in_lightPlaneColor; /* unused */
+    uniform vec3 in_lightPlaneColor;
     uniform vec3 in_lightPlaneCenter;
     uniform vec3 in_lightPlaneRight;
     uniform vec3 in_lightPlaneUp;
@@ -10,29 +10,6 @@ local _areaLightStr = [[
     uniform float in_lightPlaneH;
     uniform float in_lightPlaneRadius;
     uniform sampler2D in_lightPlaneTex;
-
-    // Returns a basic approximation of the rectangular light color by
-    // sampling nine points from its color texture.
-    //
-    // TODO: we should do this on the CPU instead; the color does not change during the
-    // rendering of the scene so we can calculate it once instead of for every shaded
-    // pixels.
-    vec3 ApproximateLightColor()
-    {
-        vec4 res = vec4(0,0,0,0);
-
-        res += texture(in_lightPlaneTex, vec2(0.2, 0.2));
-        res += texture(in_lightPlaneTex, vec2(0.2, 0.5));
-        res += texture(in_lightPlaneTex, vec2(0.2, 0.8));
-        res += texture(in_lightPlaneTex, vec2(0.5, 0.2));
-        res += texture(in_lightPlaneTex, vec2(0.5, 0.5));
-        res += texture(in_lightPlaneTex, vec2(0.5, 0.8));
-        res += texture(in_lightPlaneTex, vec2(0.8, 0.2));
-        res += texture(in_lightPlaneTex, vec2(0.8, 0.5));
-        res += texture(in_lightPlaneTex, vec2(0.8, 0.8));
-
-        return res.xyz / 9.0;
-    }
 
     vec3 ClosestPointOnPlane(vec3 point, vec3 planeCenter, vec3 planeNormal)
     {
@@ -99,10 +76,7 @@ local _areaLightStr = [[
         // You can tune the "0.2" constant to find something that looks good enough.
         float illuminance = 0.2f * solidAngle * d;
 
-        // Approximate the light color based on a few points from its color texture.
-        vec3 lightColor = ApproximateLightColor();
-
-        return illuminance * lightColor * falloff;
+        return illuminance * in_lightPlaneColor * falloff;
     }
 ]]
 

@@ -18,6 +18,38 @@ local gLight = {
     radius = 2,
 }
 
+function calc_light_color(image)
+    local w, h = image:getDimensions()
+
+    local res = lovr.math.newVec3(0, 0, 0)
+
+    local r, g, b, _ = image:getPixel(math.floor(0.2 * w), math.floor(0.2 * h))
+    res:add(lovr.math.newVec3(r, g, b))
+    r, g, b, _ = image:getPixel(math.floor(0.2 * w), math.floor(0.5 * h))
+    res:add(lovr.math.newVec3(r, g, b))
+    r, g, b, _ = image:getPixel(math.floor(0.2 * w), math.floor(0.8 * h))
+    res:add(lovr.math.newVec3(r, g, b))
+
+    r, g, b, _ = image:getPixel(math.floor(0.5 * w), math.floor(0.2 * h))
+    res:add(lovr.math.newVec3(r, g, b))
+    r, g, b, _ = image:getPixel(math.floor(0.5 * w), math.floor(0.5 * h))
+    res:add(lovr.math.newVec3(r, g, b))
+    r, g, b, _ = image:getPixel(math.floor(0.5 * w), math.floor(0.8 * h))
+    res:add(lovr.math.newVec3(r, g, b))
+
+
+    r, g, b, _ = image:getPixel(math.floor(0.8 * w), math.floor(0.2 * h))
+    res:add(lovr.math.newVec3(r, g, b))
+    r, g, b, _ = image:getPixel(math.floor(0.8 * w), math.floor(0.5 * h))
+    res:add(lovr.math.newVec3(r, g, b))
+    r, g, b, _ = image:getPixel(math.floor(0.8 * w), math.floor(0.8 * h))
+    res:add(lovr.math.newVec3(r, g, b))
+
+    res:div(9)
+
+    return res
+end
+
 function create_room_plane()
     local plane = {}
 
@@ -45,7 +77,9 @@ function lovr.load()
     gRoomPlane = create_room_plane()
 
     -- select an initial texture for the light color.
-    gLight.tex = lovr.graphics.newTexture(ASSET_PATH .. 'tv0.png')
+    img = lovr.data.newImage(ASSET_PATH .. 'tv0.png')
+    gLight.color = calc_light_color(img)
+    gLight.tex = lovr.graphics.newTexture(img)
     gLight.mat = lovr.graphics.newMaterial(gLight.tex)
 end
 
@@ -123,7 +157,9 @@ function lovr.keypressed(key, scancode, r)
         path = ASSET_PATH .. 'tv' .. slideshow_ind .. '.png'
         print('using texture: ' .. path)
 
-        gLight.tex = lovr.graphics.newTexture(path)
+        img = lovr.data.newImage(path)
+        gLight.color = calc_light_color(img)
+        gLight.tex = lovr.graphics.newTexture(img)
         gLight.mat = lovr.graphics.newMaterial(gLight.tex)
     end
 end
