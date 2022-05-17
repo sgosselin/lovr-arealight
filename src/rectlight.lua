@@ -81,7 +81,7 @@ local _areaLightStr = [[
 ]]
 
 return function ()
-    return lovr.graphics.newShader(_areaLightStr .. [[
+    return lovr.graphics.newShader([[
         out vec3 v_worldPos;
         out vec3 v_worldNormal;
 
