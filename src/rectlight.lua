@@ -102,6 +102,6 @@ return function ()
             vec3 lightColor = RectLightShade(v_worldPos, v_worldNormal);
             return vec4(lightColor, 1.0);
         }
-    ]])
+    ]], { flags = { highp = true } })
 end
 
