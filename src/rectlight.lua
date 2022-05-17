@@ -87,6 +87,9 @@ return function ()
 
         vec4 position(mat4 projection, mat4 transform, vec4 vertex) {
             v_worldPos = (lovrModel * vertex).xyz;
+
+            // FIXME: this does not work on Quest 2 for some reason. I was only able to
+            // get it working by not touching the lovrNormal vector.
             v_worldNormal = normalize(lovrNormalMatrix * lovrNormal);
 
             return projection * transform * vertex;
