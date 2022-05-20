@@ -82,21 +82,20 @@ local _areaLightStr = [[
         float solidAngle = RectangleSolidAngle(worldPos, posTL, posBL,
             posBR, posTR);
 
-        float d = Saturate(dot(normalize(posTL - worldPos), worldNormal))
+        // Instead of calculating the contribution of each points on the
+        // rectangle, we only consider the Most Relevant Points (MRP) and
+        // average them.
+        float d = 0.2 * (Saturate(dot(normalize(posTL - worldPos), worldNormal))
             + Saturate(dot(normalize(posBL - worldPos), worldNormal))
             + Saturate(dot(normalize(posBR - worldPos), worldNormal))
             + Saturate(dot(normalize(posTR - worldPos), worldNormal))
-            + Saturate(dot(normalize(planeC - worldPos), worldNormal));
+            + Saturate(dot(normalize(planeC - worldPos), worldNormal)));
 
         // Calculate the falloff based on the light radius and distance from
-        // plane.
+        // the light plane.
         float falloff = 1.0 - Saturate(dist / radius);
 
-        // You can tune the "0.2" constant to find something that looks
-        // good enough.
-        float illuminance = 0.2f * solidAngle * d * falloff;
-
-        return illuminance * lightColor;
+        return solidAngle * d * falloff * lightColor;
     }
 ]]
 
