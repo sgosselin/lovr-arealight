@@ -1,7 +1,10 @@
 local _areaLightStr = [[
     #define M_PI 3.14159265358979323846
 
-    // Lights
+    // Ambient Light
+    uniform vec3 in_ambientLightColor;
+
+    // Rect Area Lights
     #define MAX_LIGHT 2
     uniform vec3 in_rectLightColor[MAX_LIGHT];
     uniform vec3 in_rectLightCenter[MAX_LIGHT];
@@ -116,7 +119,7 @@ return function ()
         in vec3 v_worldNormal;
 
         vec4 color(vec4 color, sampler2D image, vec2 uv) {
-            vec3 res = vec3(0.01, 0.01, 0.03);
+            vec3 res = in_ambientLightColor;
 
             for (int i = 0; i < in_rectLightCount; i++) {
                 res += RectLightShade(v_worldPos, v_worldNormal, i);

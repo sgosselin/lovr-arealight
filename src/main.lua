@@ -121,6 +121,7 @@ function draw_room(room_plane, light)
     lovr.graphics.setShader(room_plane.shader)
 
     s = room_plane.shader
+    s:send('in_ambientLightColor',  lovr.math.newVec3(0.01, 0.01, 0.03))
     s:send('in_rectLightColor',     { gLight0.color, gLight1.color })
     s:send('in_rectLightCenter',    { gLight0.center, gLight1.center })
     s:send('in_rectLightRight',     { gLight0.vecRight, gLight1.vecRight })
