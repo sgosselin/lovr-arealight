@@ -1,15 +1,16 @@
 local _areaLightStr = [[
     #define M_PI 3.14159265358979323846
 
-    uniform vec3 in_lightPlaneColor;
-    uniform vec3 in_lightPlaneCenter;
-    uniform vec3 in_lightPlaneRight;
-    uniform vec3 in_lightPlaneUp;
-    uniform vec3 in_lightPlaneNormal;
-    uniform float in_lightPlaneW;
-    uniform float in_lightPlaneH;
-    uniform float in_lightPlaneRadius;
-    uniform sampler2D in_lightPlaneTex;
+    // Lights
+    #define MAX_LIGHT 2
+    uniform vec3 in_rectLightColor[MAX_LIGHT];
+    uniform vec3 in_rectLightCenter[MAX_LIGHT];
+    uniform vec3 in_rectLightRight[MAX_LIGHT];
+    uniform vec3 in_rectLightUp[MAX_LIGHT];
+    uniform vec3 in_rectLightNormal[MAX_LIGHT];
+    uniform vec3 in_rectLightDimension[MAX_LIGHT];
+    uniform float in_rectLightRadius[MAX_LIGHT];
+    uniform int in_rectLightCount;
 
     vec3 ClosestPointOnPlane(vec3 point, vec3 planeCenter, vec3 planeNormal)
     {
@@ -41,42 +42,58 @@ local _areaLightStr = [[
         return g0 + g1 + g2 + g3 - 2.0f * M_PI;
     }
 
-    vec3 RectLightShade(vec3 worldPos, vec3 worldNormal)
+    float PyramidSolidAngle(float dist, float halfW, float halfH)
     {
-        float check = dot(worldPos - in_lightPlaneCenter, in_lightPlaneNormal);
-        if (check < 0.0f) {
+        float a = halfW;
+        float b = halfH;
+        float h = dist;
+        return 4 * asin (a * b / sqrt (( a * a + h * h) * (b * b + h * h) ));
+    }
+
+    vec3 RectLightShade(vec3 worldPos, vec3 worldNormal, int ind)
+    {
+        vec3 planeC = in_rectLightCenter[ind];
+        vec3 planeR = in_rectLightRight[ind];
+        vec3 planeU = in_rectLightUp[ind];
+        vec3 planeN = in_rectLightNormal[ind];
+        float radius = in_rectLightRadius[ind];
+        vec3 lightColor = in_rectLightColor[ind];
+
+        float planeHalfW = in_rectLightDimension[ind].x / 2.0;
+        float planeHalfH = in_rectLightDimension[ind].y / 2.0;
+
+        // If the point is on the other side of the light, not shaded.
+        float check = dot(worldPos - planeC, planeN);
+        if (check < 0.0f)
             return vec3(0.0);
-        }
-
-        vec3 planeC = in_lightPlaneCenter;
-        vec3 planeR = in_lightPlaneRight;
-        vec3 planeU = in_lightPlaneUp;
-        vec3 planeN = in_lightPlaneNormal;
-
-        float planeHalfW = in_lightPlaneW / 2.0;
-        float planeHalfH = in_lightPlaneH / 2.0;
 
         vec3 posTL = planeC + planeR * -planeHalfW + planeU *  planeHalfH;
         vec3 posTR = planeC + planeR *  planeHalfW + planeU *  planeHalfH;
         vec3 posBL = planeC + planeR * -planeHalfW + planeU * -planeHalfH;
         vec3 posBR = planeC + planeR *  planeHalfW + planeU * -planeHalfH;
 
-        float solidAngle = RectangleSolidAngle(worldPos, posTL, posBL, posBR, posTR);
+        // Calculate the distance from the plane.
+        vec3 proj = ClosestPointOnPlane(worldPos, planeC, planeN);
+        float dist = distance(worldPos, proj);
+
+        float solidAngle = RectangleSolidAngle(worldPos, posTL, posBL,
+            posBR, posTR);
+
         float d = Saturate(dot(normalize(posTL - worldPos), worldNormal))
             + Saturate(dot(normalize(posBL - worldPos), worldNormal))
             + Saturate(dot(normalize(posBR - worldPos), worldNormal))
             + Saturate(dot(normalize(posTR - worldPos), worldNormal))
             + Saturate(dot(normalize(planeC - worldPos), worldNormal));
 
-        // Calculate the falloff based on the light radius and distance from plane.
-        vec3 proj = ClosestPointOnPlane(worldPos, planeC, planeN);
-        float dist = distance(worldPos, proj);
-        float falloff = 1.0 - Saturate(dist / in_lightPlaneRadius);
+        // Calculate the falloff based on the light radius and distance from
+        // plane.
+        float falloff = 1.0 - Saturate(dist / radius);
 
-        // You can tune the "0.2" constant to find something that looks good enough.
-        float illuminance = 0.2f * solidAngle * d;
+        // You can tune the "0.2" constant to find something that looks
+        // good enough.
+        float illuminance = 0.2f * solidAngle * d * falloff;
 
-        return illuminance * in_lightPlaneColor * falloff;
+        return illuminance * lightColor;
     }
 ]]
 
@@ -87,9 +104,9 @@ return function ()
 
         vec4 position(mat4 projection, mat4 transform, vec4 vertex) {
             v_worldPos = (lovrModel * vertex).xyz;
-
-            // FIXME: this does not work on Quest 2 for some reason. I was only able to
-            // get it working by not touching the lovrNormal vector.
+            // FIXME: this does not work on Quest 2 for some reason. I
+            // was only able to get it working by not touching the
+            // lovrNormal vector.
             v_worldNormal = normalize(lovrNormalMatrix * lovrNormal);
 
             return projection * transform * vertex;
@@ -99,8 +116,13 @@ return function ()
         in vec3 v_worldNormal;
 
         vec4 color(vec4 color, sampler2D image, vec2 uv) {
-            vec3 lightColor = RectLightShade(v_worldPos, v_worldNormal);
-            return vec4(lightColor, 1.0);
+            vec3 res = vec3(0);
+
+            for (int i = 0; i < in_rectLightCount; i++) {
+                res += RectLightShade(v_worldPos, v_worldNormal, i);
+            }
+
+            return vec4(res, 1);
         }
     ]], { flags = { highp = true } })
 end

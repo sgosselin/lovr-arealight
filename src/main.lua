@@ -1,15 +1,25 @@
 ASSET_PATH = './asset/'
 
 -- Definition of a Rectangular Area Light.
-local gLight = {
+local gLight0 = {
     center = lovr.math.newVec3(0, 1, 0),
     origin_center = lovr.math.newVec3(0, 1, 0),
-    size = lovr.math.newVec2(1.5, 1.0),
+    dim = lovr.math.newVec3(1.5, 1.0, 0),
     vecRight  = lovr.math.newVec3(1, 0, 0),
     vecUp     = lovr.math.newVec3(0, 1, 0),
     vecNormal = lovr.math.newVec3(0, 0, 1),
-    color = lovr.math.newVec3(1, 1, 1),
-    radius = 1,
+    color = lovr.math.newVec3(0, 1, 0),
+    radius = 3,
+}
+
+local gLight1 = {
+    center = lovr.math.newVec3(0, 1, 1),
+    dim = lovr.math.newVec3(1, 1, 0),
+    vecRight  = lovr.math.newVec3(1, 0, 0),
+    vecUp     = lovr.math.newVec3(0, 0, 1),
+    vecNormal = lovr.math.newVec3(0, -1, 0),
+    color = lovr.math.newVec3(0.4, 0, 0),
+    radius = 3,
 }
 
 function calc_light_color(image)
@@ -71,10 +81,10 @@ function lovr.load()
     gRoomPlane = create_room_plane()
 
     -- select an initial texture for the light color.
-    img = lovr.data.newImage(ASSET_PATH .. 'tv0.png')
-    gLight.color = calc_light_color(img)
-    gLight.tex = lovr.graphics.newTexture(img)
-    gLight.mat = lovr.graphics.newMaterial(gLight.tex)
+    --img = lovr.data.newImage(ASSET_PATH .. 'tv0.png')
+    --gLight0.color = calc_light_color(img)
+    --gLight0.tex = lovr.graphics.newTexture(img)
+    --gLight0.mat = lovr.graphics.newMaterial(gLight0.tex)
 end
 
 function draw_world_axes()
@@ -89,24 +99,36 @@ end
 
 function draw_rectlight(light)
     lovr.graphics.setShader()
-    lovr.graphics.setColor(1, 1, 1)
-    lovr.graphics.plane(light.mat,
-        light.center.x, light.center.y, light.center.z,
-        light.size.x, light.size.y)
+
+    if light.mat then
+        lovr.graphics.setColor(1, 1, 1)
+        lovr.graphics.plane(light.mat,
+            light.center.x, light.center.y, light.center.z,
+            light.dim.x, light.dim.y)
+    else
+        lovr.graphics.setColor(light.color.x, light.color.y, light.color.z)
+        lovr.graphics.plane('fill',
+            light.center.x, light.center.y, light.center.z,
+            light.dim.x, light.dim.y)
+    end
+end
+
+function shader_send_light(shader, light, ind)
+
 end
 
 function draw_room(room_plane, light)
     lovr.graphics.setShader(room_plane.shader)
 
-    room_plane.shader:send('in_lightPlaneColor', light.color)
-    room_plane.shader:send('in_lightPlaneCenter', light.center)
-    room_plane.shader:send('in_lightPlaneRight', light.vecRight)
-    room_plane.shader:send('in_lightPlaneUp', light.vecUp)
-    room_plane.shader:send('in_lightPlaneNormal', light.vecNormal)
-    room_plane.shader:send('in_lightPlaneW', light.size.x)
-    room_plane.shader:send('in_lightPlaneH', light.size.y)
-    room_plane.shader:send('in_lightPlaneRadius', light.radius)
-    room_plane.shader:send('in_lightPlaneTex', light.tex)
+    s = room_plane.shader
+    s:send('in_rectLightColor',     { gLight0.color, gLight1.color })
+    s:send('in_rectLightCenter',    { gLight0.center, gLight1.center })
+    s:send('in_rectLightRight',     { gLight0.vecRight, gLight1.vecRight })
+    s:send('in_rectLightUp',        { gLight0.vecUp, gLight1.vecUp })
+    s:send('in_rectLightNormal',    { gLight0.vecNormal, gLight1.vecNormal})
+    s:send('in_rectLightDimension', { gLight0.dim, gLight1.dim })
+    s:send('in_rectLightRadius',    { gLight0.radius, gLight1.radius})
+    s:send('in_rectLightCount', 2)
 
     -- bottom
     lovr.graphics.push()
@@ -138,8 +160,8 @@ end
 
 angle=0
 function lovr.update(dt)
-    angle = angle + 0.01
-    gLight.center.y = gLight.origin_center.y + math.cos(1.5*angle)/2
+    --angle = angle + 0.01
+    --gLight1.center.y = gLight1.origin_center.y + math.cos(1.5*angle)/2
 end
 
 slideshow_ind=0
@@ -152,19 +174,23 @@ function lovr.keypressed(key, scancode, r)
         print('using texture: ' .. path)
 
         img = lovr.data.newImage(path)
-        gLight.color = calc_light_color(img)
-        gLight.tex = lovr.graphics.newTexture(img)
-        gLight.mat = lovr.graphics.newMaterial(gLight.tex)
+        gLight0.color = calc_light_color(img)
+        gLight0.tex = lovr.graphics.newTexture(img)
+        gLight0.mat = lovr.graphics.newMaterial(gLight0.tex)
     end
 
-    if key == 'z' then gLight.radius = gLight.radius + 1 end
-    if key == 'x' then gLight.radius = gLight.radius - 1 end
+    if key == 'z' then gLight0.radius = gLight0.radius + 1 end
+    if key == 'x' then gLight0.radius = gLight0.radius - 1 end
 end
 
 function lovr.draw()
     lovr.graphics.setBackgroundColor(.05, .05, .05)
 
     draw_world_axes()
-    draw_room(gRoomPlane, gLight)
-    draw_rectlight(gLight)
+    draw_room(gRoomPlane)
+    draw_rectlight(gLight0)
+end
+
+function lovr.conf(t)
+  t.gammacorrect = true
 end
