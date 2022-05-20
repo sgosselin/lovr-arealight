@@ -73,8 +73,8 @@ local _areaLightStr = [[
         vec3 posBR = planeC + planeR *  planeHalfW + planeU * -planeHalfH;
 
         // Calculate the distance from the plane.
-        vec3 proj = ClosestPointOnPlane(worldPos, planeC, planeN);
-        float dist = distance(worldPos, proj);
+        vec3 pointOnPlane = ClosestPointOnPlane(worldPos, planeC, planeN);
+        float dist = distance(worldPos, pointOnPlane);
 
         float solidAngle = RectangleSolidAngle(worldPos, posTL, posBL,
             posBR, posTR);
