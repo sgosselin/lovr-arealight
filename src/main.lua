@@ -113,15 +113,12 @@ function draw_rectlight(light)
     end
 end
 
-function shader_send_light(shader, light, ind)
-
-end
-
+t=lovr.graphics.newTexture('asset/floor_baseColor.jpg')
 function draw_room(room_plane, light)
     lovr.graphics.setShader(room_plane.shader)
 
     s = room_plane.shader
-    s:send('in_ambientLightColor',  lovr.math.newVec3(0.01, 0.01, 0.03))
+    s:send('in_ambientLightColor',  lovr.math.newVec3(0.1, 0.1, 0.1))
     s:send('in_rectLightColor',     { gLight0.color, gLight1.color })
     s:send('in_rectLightCenter',    { gLight0.center, gLight1.center })
     s:send('in_rectLightRight',     { gLight0.vecRight, gLight1.vecRight })
@@ -129,7 +126,8 @@ function draw_room(room_plane, light)
     s:send('in_rectLightNormal',    { gLight0.vecNormal, gLight1.vecNormal})
     s:send('in_rectLightDimension', { gLight0.dim, gLight1.dim })
     s:send('in_rectLightRadius',    { gLight0.radius, gLight1.radius})
-    s:send('in_rectLightCount', 2)
+    s:send('in_rectLightCount', 1)
+    s:send('in_matColor', t)
 
     -- bottom
     lovr.graphics.push()

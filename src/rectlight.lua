@@ -15,6 +15,8 @@ local _areaLightStr = [[
     uniform float in_rectLightRadius[MAX_LIGHT];
     uniform int in_rectLightCount;
 
+    uniform sampler2D in_matColor;
+
     vec3 ClosestPointOnPlane(vec3 point, vec3 planeCenter, vec3 planeNormal)
     {
         float distance = dot(planeNormal, point - planeCenter);
@@ -94,6 +96,8 @@ local _areaLightStr = [[
         // Calculate the falloff based on the light radius and distance from
         // the light plane.
         float falloff = 1.0 - Saturate(dist / radius);
+        //float falloff = pow(Saturate(1 - pow(dist / radius, 4)), 2)
+        //    / (dist * dist + 1 );
 
         return solidAngle * d * falloff * lightColor;
     }
@@ -118,7 +122,7 @@ return function ()
         in vec3 v_worldNormal;
 
         vec4 color(vec4 color, sampler2D image, vec2 uv) {
-            vec3 res = in_ambientLightColor;
+            vec3 res = in_ambientLightColor * texture(in_matColor, uv*10).xyz;
 
             for (int i = 0; i < in_rectLightCount; i++) {
                 res += RectLightShade(v_worldPos, v_worldNormal, i);
