@@ -116,7 +116,7 @@ return function ()
         in vec3 v_worldNormal;
 
         vec4 color(vec4 color, sampler2D image, vec2 uv) {
-            vec3 res = vec3(0);
+            vec3 res = vec3(0.01, 0.01, 0.03);
 
             for (int i = 0; i < in_rectLightCount; i++) {
                 res += RectLightShade(v_worldPos, v_worldNormal, i);
