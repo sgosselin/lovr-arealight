@@ -161,8 +161,8 @@ end
 
 angle=0
 function lovr.update(dt)
-    --angle = angle + 0.01
-    --gLight1.center.y = gLight1.origin_center.y + math.cos(1.5*angle)/2
+    angle = angle + 0.01
+    gLight0.center.y = gLight0.origin_center.y + math.cos(1.5*angle)/2
 end
 
 slideshow_ind=0
