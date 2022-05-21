@@ -117,7 +117,7 @@ t=lovr.graphics.newTexture('asset/floor_baseColor.jpg')
 function draw_room(room_plane, light)
     lovr.graphics.setShader(room_plane.shader)
 
-    s = room_plane.shader
+    local s = room_plane.shader
     s:send('in_ambientLightColor',  lovr.math.newVec3(0.1, 0.1, 0.1))
     s:send('in_rectLightColor',     { gLight0.color, gLight1.color })
     s:send('in_rectLightCenter',    { gLight0.center, gLight1.center })
@@ -157,22 +157,22 @@ function draw_room(room_plane, light)
     lovr.graphics.pop()
 end
 
-angle=0
-function lovr.update(dt)
+local angle=0
+function lovr.update()
     angle = angle + 0.01
     gLight0.center.y = gLight0.origin_center.y + math.cos(1.5*angle)/2
 end
 
-slideshow_ind=0
-slideshow_max=4
-function lovr.keypressed(key, scancode, r)
+local slideshow_ind=0
+local slideshow_max=4
+function lovr.keypressed(key)
     if key == 'space' then
         slideshow_ind = (slideshow_ind + 1) % slideshow_max
 
-        path = ASSET_PATH .. 'tv' .. slideshow_ind .. '.png'
+        local path = ASSET_PATH .. 'tv' .. slideshow_ind .. '.png'
         print('using texture: ' .. path)
 
-        img = lovr.data.newImage(path)
+        local img = lovr.data.newImage(path)
         gLight0.color = calc_light_color(img)
         gLight0.tex = lovr.graphics.newTexture(img)
         gLight0.mat = lovr.graphics.newMaterial(gLight0.tex)
