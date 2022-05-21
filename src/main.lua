@@ -22,9 +22,10 @@ local gLight1 = {
     radius = 3,
 }
 
-local gFloorTex = lovr.graphics.newTexture('asset/floor_baseColor.jpg')
+local gRoomPlane = nil
+local gRoomTex = lovr.graphics.newTexture('asset/floor_baseColor.jpg')
 
-function calc_light_color(image)
+local function calc_light_color(image)
     local w, h = image:getDimensions()
 
     local res = lovr.math.newVec3(0, 0, 0)
@@ -56,7 +57,7 @@ function calc_light_color(image)
     return res
 end
 
-function create_room_plane()
+local function create_room_plane()
     local plane = {}
 
     plane.mesh = lovr.graphics.newMesh({
@@ -81,15 +82,9 @@ end
 
 function lovr.load()
     gRoomPlane = create_room_plane()
-
-    -- select an initial texture for the light color.
-    --img = lovr.data.newImage(ASSET_PATH .. 'tv0.png')
-    --gLight0.color = calc_light_color(img)
-    --gLight0.tex = lovr.graphics.newTexture(img)
-    --gLight0.mat = lovr.graphics.newMaterial(gLight0.tex)
 end
 
-function draw_world_axes()
+local function draw_world_axes()
     lovr.graphics.setShader()
     lovr.graphics.setColor(1, 0, 0)
     lovr.graphics.line(0, 0, 0, 1, 0, 0)
@@ -99,7 +94,7 @@ function draw_world_axes()
     lovr.graphics.line(0, 0, 0, 0, 0, 1)
 end
 
-function draw_rectlight(light)
+local function draw_rectlight(light)
     lovr.graphics.setShader()
 
     if light.mat then
@@ -115,7 +110,7 @@ function draw_rectlight(light)
     end
 end
 
-function draw_room(room_plane, light)
+local function draw_room(room_plane)
     lovr.graphics.setShader(room_plane.shader)
 
     local s = room_plane.shader
@@ -128,7 +123,7 @@ function draw_room(room_plane, light)
     s:send('in_rectLightDimension', { gLight0.dim, gLight1.dim })
     s:send('in_rectLightRadius',    { gLight0.radius, gLight1.radius})
     s:send('in_rectLightCount', 1)
-    s:send('in_matColor', gFloorTex)
+    s:send('in_matColor', gRoomTex)
 
     -- bottom
     lovr.graphics.push()
