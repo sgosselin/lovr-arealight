@@ -22,6 +22,8 @@ local gLight1 = {
     radius = 3,
 }
 
+local gFloorTex = lovr.graphics.newTexture('asset/floor_baseColor.jpg')
+
 function calc_light_color(image)
     local w, h = image:getDimensions()
 
@@ -113,7 +115,6 @@ function draw_rectlight(light)
     end
 end
 
-t=lovr.graphics.newTexture('asset/floor_baseColor.jpg')
 function draw_room(room_plane, light)
     lovr.graphics.setShader(room_plane.shader)
 
@@ -127,7 +128,7 @@ function draw_room(room_plane, light)
     s:send('in_rectLightDimension', { gLight0.dim, gLight1.dim })
     s:send('in_rectLightRadius',    { gLight0.radius, gLight1.radius})
     s:send('in_rectLightCount', 1)
-    s:send('in_matColor', t)
+    s:send('in_matColor', gFloorTex)
 
     -- bottom
     lovr.graphics.push()
