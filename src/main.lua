@@ -185,7 +185,3 @@ function lovr.draw()
     draw_room(gRoomPlane)
     draw_rectlight(gLight0)
 end
-
-function lovr.conf(t)
-  t.gammacorrect = true
-end
