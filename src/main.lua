@@ -23,7 +23,7 @@ local gLight1 = {
 }
 
 local gRoomPlane = nil
-local gRoomTex = lovr.graphics.newTexture('asset/floor_baseColor.jpg')
+local gRoomTex = lovr.graphics.newTexture(ASSET_PATH .. 'floor_baseColor.jpg')
 
 local function calc_light_color(image)
     local w, h = image:getDimensions()
